@@ -1,12 +1,12 @@
-package com.slackbot.slackbot;
+package com.slackbot.slackbot.Template;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slack.api.bolt.handler.builtin.BlockActionHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
-import com.slack.api.methods.request.chat.ChatPostMessageRequest;
-import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
+import com.slackbot.slackbot.MessagePoster;
+import com.slackbot.slackbot.Query.CreateTeamQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +75,7 @@ public class AddTeam {
 
             CreateTeamQuery createTeamQuery = new CreateTeamQuery();
             createTeamQuery.teamName=name;
-            createTeamQuery.adminId=req.getPayload().getUser().getUsername();
+            createTeamQuery.adminId=req.getPayload().getUser().getId();
 
             try {
                 HttpRequest httpRequest =  HttpRequest.newBuilder()
@@ -85,7 +85,7 @@ public class AddTeam {
                 HttpResponse<String> response = httpClient.send(httpRequest,HttpResponse.BodyHandlers.ofString());
                 logger.info(response.toString());
                 if(response.statusCode()!=200) throw new InterruptedException(response.body());
-                MessagePoster.send(response.body());
+                MessagePoster.send(response.body(),req.getPayload().getUser().getId());
                 return ctx.ack();
             } catch(URISyntaxException | InterruptedException | IOException e) {
                 e.printStackTrace();

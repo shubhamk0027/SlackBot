@@ -1,15 +1,16 @@
-package com.slackbot.slackbot;
+package com.slackbot.slackbot.Template;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slack.api.bolt.handler.builtin.BlockActionHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
+import com.slackbot.slackbot.MessagePoster;
+import com.slackbot.slackbot.Query.GetSchemaQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -85,7 +86,7 @@ public class GetSchema {
             HttpResponse <String> resp = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             logger.info(resp.toString());
             if(resp.statusCode() != 200) throw new InterruptedException(resp.body());
-            MessagePoster.send(resp.body());
+            MessagePoster.send(resp.body(),req.getPayload().getUser().getId());
         } catch(Exception e) {
             e.printStackTrace();
             errors.put("teamKey-block", e.getMessage());

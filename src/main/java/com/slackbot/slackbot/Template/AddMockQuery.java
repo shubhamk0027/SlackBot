@@ -1,15 +1,18 @@
-package com.slackbot.slackbot;
+package com.slackbot.slackbot.Template;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slack.api.bolt.handler.builtin.BlockActionHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
+import com.slackbot.slackbot.MessagePoster;
+import com.slackbot.slackbot.Query.MockQuery;
+import com.slackbot.slackbot.Query.MockRequest;
+import com.slackbot.slackbot.Query.MockResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -115,20 +118,22 @@ public class AddMockQuery {
         String checkMode = stateValues.get("check-block").get("add-mock").getValue();
         String status = stateValues.get("status-block").get("add-mock").getValue();
         String response = stateValues.get("response-block").get("add-mock").getValue();
-
         String temp = stateValues.get("headers-block").get("add-mock").getValue();
-        String[] res= temp.split(",");
-        Map<String,String> mp = new HashMap <>();
-        for(String pair:res){
-            int i=0;
-            for(;i<pair.length();i++){
-                if(pair.charAt(i)==':') break;
+
+        Map <String, String> mp = new HashMap <>();
+        if(temp!=null) {
+            String[] res = temp.split(",");
+            for(String pair : res) {
+                int i = 0;
+                for(; i < pair.length(); i++) {
+                    if(pair.charAt(i) == ':') break;
+                }
+                if(i == pair.length()) {
+                    errors.put("headers-block", "Invalid header format!");
+                    break;
+                }
+                mp.put(pair.substring(0, i), pair.substring(i + 1));
             }
-            if(i==pair.length()) {
-                errors.put("headers-block","Invalid header format!");
-                break;
-            }
-            mp.put(pair.substring(0,i),pair.substring(i+1));
         }
 
         if(checkMode==null) checkMode="false";
@@ -165,7 +170,7 @@ public class AddMockQuery {
                     HttpResponse <String> resp= httpClient.send(httpRequest,HttpResponse.BodyHandlers.ofString());
                     logger.info(resp.toString());
                     if(resp.statusCode()!=200) throw new InterruptedException(resp.body());
-                    MessagePoster.send(resp.body());
+                    MessagePoster.send(resp.body(),req.getPayload().getUser().getId());
             } catch(Exception  e) {
                 e.printStackTrace();
                 errors.put("teamKey-block",e.getMessage());

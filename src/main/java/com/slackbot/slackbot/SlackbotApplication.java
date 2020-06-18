@@ -4,15 +4,17 @@ import com.slack.api.bolt.response.Response;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.bolt.App;
 import com.slack.api.bolt.jetty.SlackAppServer;
+import com.slackbot.slackbot.Template.AddMockQuery;
+import com.slackbot.slackbot.Template.DeleteMock;
+import com.slackbot.slackbot.Template.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-
-import java.net.http.HttpClient;
 
 /**
  * Note use https connection
@@ -23,21 +25,25 @@ import java.net.http.HttpClient;
 public class SlackbotApplication {
 
     private static Logger logger = LoggerFactory.getLogger(SlackbotApplication.class);
+    private final String bearerToken;
+
+    SlackbotApplication(@Value("${SLACK_BOT_TOKEN}") String bearerToken){
+        this.bearerToken=bearerToken;
+    }
 
     public static void main(String[] args)  {
         SpringApplication.run(SlackbotApplication.class, args);
+        logger.info("Spring Application Ready!");
     }
 
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext context){
         return args -> {
-
+            MessagePoster.setBearerToken(bearerToken);
             App app = new App();
-
 
             // Add a team
             app.command("/addteam", (req, ctx) -> {
-                logger.info("Add a team requested");
                 ViewsOpenResponse viewsOpenRes = ctx.client().viewsOpen(r -> r
                         .triggerId(ctx.getTriggerId())
                         .view(AddTeam.buildView()));
@@ -57,7 +63,6 @@ public class SlackbotApplication {
 
             // delete a team
             app.command("/delteam", (req, ctx) -> {
-                logger.info("Hello command requested");
                 ViewsOpenResponse viewsOpenRes = ctx.client().viewsOpen(r -> r
                         .triggerId(ctx.getTriggerId())
                         .view(DeleteTeam.buildView()));
@@ -69,9 +74,9 @@ public class SlackbotApplication {
             app.viewSubmission("del-team", DeleteTeam.submissionHandler);
             app.viewClosed("del-team", (req, ctx) -> ctx.ack());
 
+
             // get Schema on this path
             app.command("/getschema", (req, ctx) -> {
-                logger.info("Get a Schema requested");
                 ViewsOpenResponse viewsOpenRes = ctx.client().viewsOpen(r -> r
                         .triggerId(ctx.getTriggerId())
                         .view(GetSchema.buildView()));
@@ -85,11 +90,8 @@ public class SlackbotApplication {
 
 
 
-
-
             // add schema on this path
             app.command("/addschema", (req, ctx) -> {
-                logger.info("Add a Schema requested");
                 ViewsOpenResponse viewsOpenRes = ctx.client().viewsOpen(r -> r
                         .triggerId(ctx.getTriggerId())
                         .view(AddSchema.buildView()));
@@ -103,11 +105,8 @@ public class SlackbotApplication {
 
 
 
-
-
             // Add a new Mock Query
             app.command("/addmock", (req, ctx) -> {
-                logger.info("Hello command requested");
                 ViewsOpenResponse viewsOpenRes = ctx.client().viewsOpen(r -> r
                         .triggerId(ctx.getTriggerId())
                         .view(AddMockQuery.buildView()));
@@ -121,30 +120,23 @@ public class SlackbotApplication {
 
 
 
-
-
             // delete a MockQuery
             app.command("/delmock", (req, ctx) -> {
-                logger.info("Hello command requested");
                 ViewsOpenResponse viewsOpenRes = ctx.client().viewsOpen(r -> r
                         .triggerId(ctx.getTriggerId())
-                        .view(DeleteMockQuery.buildView()));
+                        .view(DeleteMock.buildView()));
                 if (viewsOpenRes.isOk()) return ctx.ack();
                 else return Response.builder().statusCode(500).body(viewsOpenRes.getError()).build();
             });
 
-            app.blockAction("del-mock", DeleteMockQuery.blockActionHandler);
-            app.viewSubmission("del-mock", DeleteMockQuery.submissionHandler);
+            app.blockAction("del-mock", DeleteMock.blockActionHandler);
+            app.viewSubmission("del-mock", DeleteMock.submissionHandler);
             app.viewClosed("del-mock", (req, ctx) -> ctx.ack());
-
-
-
 
 
 
             // Get a lost Key
             app.command("/getkey", (req, ctx) -> {
-                logger.info("Hello command requested");
                 ViewsOpenResponse viewsOpenRes = ctx.client().viewsOpen(r -> r
                         .triggerId(ctx.getTriggerId())
                         .view(GetKey.buildView()));
@@ -163,3 +155,5 @@ public class SlackbotApplication {
     }
 
 }
+
+// https://7a3e3e11cf7a.ngrok.io/slack/events

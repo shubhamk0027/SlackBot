@@ -1,16 +1,16 @@
-package com.slackbot.slackbot;
+package com.slackbot.slackbot.Template;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slack.api.bolt.handler.builtin.BlockActionHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
+import com.slackbot.slackbot.MessagePoster;
+import com.slackbot.slackbot.Query.MockSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.print.DocFlavor;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -18,10 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.slack.api.model.block.Blocks.*;
-import static com.slack.api.model.block.composition.BlockCompositions.*;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.plainTextInput;
-import static com.slack.api.model.block.element.BlockElements.staticSelect;
 import static com.slack.api.model.view.Views.*;
 import static com.slack.api.model.view.Views.viewClose;
 
@@ -114,7 +112,7 @@ public class AddSchema {
                 HttpResponse <String> response = httpClient.send(httpRequest,HttpResponse.BodyHandlers.ofString());
                 logger.info(response.toString());
                 if(response.statusCode()!=200) throw new InterruptedException(response.body());
-                MessagePoster.send(response.body());
+                MessagePoster.send(response.body(),req.getPayload().getUser().getId());
             } catch(Exception e) {
                 e.printStackTrace();
                 errors.put("teamKey-block", e.getMessage());

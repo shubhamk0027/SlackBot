@@ -1,8 +1,6 @@
-package com.slackbot.slackbot;
+package com.slackbot.slackbot.Query;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 public class MockResponse {
     private int status;
