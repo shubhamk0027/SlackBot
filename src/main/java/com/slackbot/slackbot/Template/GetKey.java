@@ -59,8 +59,8 @@ public class GetKey {
         Map <String, String> errors = new HashMap <>();
         try {
             CreateTeamQuery createTeamQuery = new CreateTeamQuery();
-            createTeamQuery.teamName=name;
-            createTeamQuery.adminId=adminId;
+            createTeamQuery.setTeamName(name);
+            createTeamQuery.setAdminId(adminId);
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(new URI("http://localhost:8080/_admin/_get/_key"))
                     .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(createTeamQuery)))

@@ -74,8 +74,8 @@ public class AddTeam {
             logger.info(req.getHeaders().toString());
 
             CreateTeamQuery createTeamQuery = new CreateTeamQuery();
-            createTeamQuery.teamName=name;
-            createTeamQuery.adminId=req.getPayload().getUser().getId();
+            createTeamQuery.setTeamName(name);
+            createTeamQuery.setAdminId(req.getPayload().getUser().getId());
 
             try {
                 HttpRequest httpRequest =  HttpRequest.newBuilder()
@@ -97,12 +97,7 @@ public class AddTeam {
 
 
     // will be req in case of wrong submission!
-    public static final BlockActionHandler blockActionHandler = ((req, ctx) -> {
-        logger.info("Values recieved: "+req.toString());
-        logger.info(req.getHeaders().toString());
-        logger.info(req.getPayload().getActions().get(0).getValue());
-        return ctx.ack();
-    });
+    public static final BlockActionHandler blockActionHandler = ((req, ctx) -> ctx.ack());
 
 }
 

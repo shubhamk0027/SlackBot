@@ -6,8 +6,8 @@ import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
 import com.slackbot.slackbot.MessagePoster;
-import com.slackbot.slackbot.Query.MockQuery;
-import com.slackbot.slackbot.Query.MockRequest;
+import com.slackbot.slackbot.Query.MockQuery.MockQuery;
+import com.slackbot.slackbot.Query.MockQuery.MockRequest;
 import com.slackbot.slackbot.Query.MockResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +97,7 @@ public class AddMockQuery {
                                 .blockId("headers-block")
                                 .optional(true)
                                 .element(plainTextInput(pti -> pti.actionId("add-mock").multiline(true)))
-                                .label(plainText(pt -> pt.text("Enter headers as: key1:val1, key2:val2 (without quotes)").emoji(true)))
+                                .label(plainText(pt -> pt.text("Enter headers as: browser:chrome, Content-Type:text/json").emoji(true)))
                         )
                 ))
         );
@@ -105,7 +105,7 @@ public class AddMockQuery {
 
     // input validation--->
     public static final ViewSubmissionHandler submissionHandler = (req, ctx) -> {
-        logger.info("Verifier running on add schema");
+        logger.info("Verifier running on add Mock");
         Map <String, String> errors = new HashMap <>();
         Map<String, Map <String, ViewState.Value>> stateValues = req.getPayload().getView().getState().getValues();
 
@@ -161,7 +161,7 @@ public class AddMockQuery {
                                 .inCheckMode(checkMode.equals("true")))
                         .respondWith( new MockResponse()
                                 .withBody(response)
-                                .withHeader(mp)
+                                .withHeaders(mp)
                                 .withStatus(Integer.parseInt(status)));
                     HttpRequest httpRequest =  HttpRequest.newBuilder()
                             .uri(new URI("http://localhost:8080/_admin/_add/_mock"))
@@ -180,11 +180,7 @@ public class AddMockQuery {
         }
     };
 
-    public static final BlockActionHandler blockActionHandler = ((req, ctx) -> {
-        String categoryId = req.getPayload().getActions().get(0).getSelectedOption().getValue();
-        logger.info("Action handler");
-        return ctx.ack();
-    });
+    public static final BlockActionHandler blockActionHandler = ((req, ctx) -> ctx.ack());
 
 
 }

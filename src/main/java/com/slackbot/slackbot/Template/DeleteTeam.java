@@ -60,8 +60,8 @@ public class DeleteTeam {
         Map <String, String> errors = new HashMap <>();
         try {
             DeleteTeamQuery deleteTeamQuery= new DeleteTeamQuery();
-            deleteTeamQuery.adminId=adminId;
-            deleteTeamQuery.teamKey=apikey;
+            deleteTeamQuery.setAdminId(adminId);
+            deleteTeamQuery.setTeamKey(apikey);
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(new URI("http://localhost:8080/_admin/_del/_team"))
                     .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(deleteTeamQuery)))

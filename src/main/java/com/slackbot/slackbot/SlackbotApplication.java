@@ -17,6 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 /**
+ * the Query sub package contains all the same Classes, except that Method is of type string instead of Enum
  * Note use https connection
  * Change url at both interactive and slash command site
  */
@@ -24,7 +25,7 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class SlackbotApplication {
 
-    private static Logger logger = LoggerFactory.getLogger(SlackbotApplication.class);
+    private static final Logger logger = LoggerFactory.getLogger(SlackbotApplication.class);
     private final String bearerToken;
 
     SlackbotApplication(@Value("${SLACK_BOT_TOKEN}") String bearerToken){
@@ -37,7 +38,7 @@ public class SlackbotApplication {
     }
 
     @Bean
-    public CommandLineRunner commandLineRunner(ApplicationContext context){
+    public CommandLineRunner commandLineRunner(){
         return args -> {
             MessagePoster.setBearerToken(bearerToken);
             App app = new App();

@@ -1,14 +1,6 @@
-package com.slackbot.slackbot.Query;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-/** Form authentication types are ignored */
-// https://docs.oracle.com/javaee/7/api/javax/json/JsonObject.html
+package com.slackbot.slackbot.Query.MockQuery;
 
 public class MockRequest {
-
-    private static final Logger logger = LoggerFactory.getLogger(MockRequest.class);
 
     private String teamKey;
     private String method;
@@ -17,8 +9,6 @@ public class MockRequest {
     private String queryParameters;
     private String queryParametersRegex;
     private boolean checkMode=false;
-    // check mode will be ignored if method does not support payload
-
 
     public String getTeamKey(){ return teamKey; }
     public String getMethod() {

@@ -53,7 +53,7 @@ public class GetSchema {
                         input(input -> input
                                 .blockId("path-block")
                                 .element(plainTextInput(pti -> pti.actionId("get-schema")))
-                                .label(plainText(pt -> pt.text("Enter relative path").emoji(true)))
+                                .label(plainText(pt -> pt.text("Enter relative path with query parameters to find the schema there").emoji(true)))
                         )
                 ))
         );

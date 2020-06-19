@@ -6,9 +6,7 @@ import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
 import com.slackbot.slackbot.MessagePoster;
-import com.slackbot.slackbot.Query.MockQuery;
-import com.slackbot.slackbot.Query.MockRequest;
-import com.slackbot.slackbot.Query.MockResponse;
+import com.slackbot.slackbot.Query.DeleteMockRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +24,7 @@ import static com.slack.api.model.block.element.BlockElements.plainTextInput;
 import static com.slack.api.model.view.Views.*;
 import static com.slack.api.model.view.Views.viewClose;
 
+
 public class DeleteMock {
 
     private static final Logger logger = LoggerFactory.getLogger(DeleteMock.class);
@@ -35,7 +34,7 @@ public class DeleteMock {
 
     public static View buildView() {
         return view(view -> view
-                .callbackId("add-mock")
+                .callbackId("del-mock")
                 .type("modal")
                 .notifyOnClose(true)
                 .title(viewTitle(title -> title.type("plain_text").text("Delete a MockQuery").emoji(true)))
@@ -54,15 +53,9 @@ public class DeleteMock {
                                 .label(plainText(pt -> pt.text("Enter Method Type(PUT/POST/DEL/GET/OPTIONS/TRACE/HEAD)").emoji(true)))
                         ),
                         input(input -> input
-                                .blockId("request-block")
-                                .optional(true)
-                                .element(plainTextInput(pti -> pti.actionId("del-mock").multiline(true)))
-                                .label(plainText(pt -> pt.text("Enter JSON request here").emoji(true)))
-                        ),
-                        input(input -> input
                                 .blockId("path-block")
                                 .element(plainTextInput(pti -> pti.actionId("del-mock")))
-                                .label(plainText(pt -> pt.text("Enter relative path. Dir names can be a regex.").emoji(true)))
+                                .label(plainText(pt -> pt.text("Enter relative path. Dir names can be a regex").emoji(true)))
                         ),
                         input(input -> input
                                 .blockId("query-block")
@@ -75,97 +68,42 @@ public class DeleteMock {
                                 .optional(true)
                                 .element(plainTextInput(pti -> pti.actionId("del-mock")))
                                 .label(plainText(pt -> pt.text("Enter query parameters here with regex (with ?)").emoji(true)))
-                        ),
-                        input(input -> input
-                                .blockId("check-block")
-                                .optional(true)
-                                .element(plainTextInput(pti -> pti.actionId("del-mock")))
-                                .label(plainText(pt -> pt.text("Enter check mode (true for strict false for non strict matching").emoji(true)))
-                        ),
-                        input(input -> input
-                                .blockId("status-block")
-                                .element(plainTextInput(pti -> pti.actionId("del-mock")))
-                                .label(plainText(pt -> pt.text("Enter Status Code").emoji(true)))
-                        ),
-                        input(input -> input
-                                .blockId("response-block")
-                                .optional(true)
-                                .element(plainTextInput(pti -> pti.actionId("del-mock").multiline(true)))
-                                .label(plainText(pt -> pt.text("Enter Response body JSON").emoji(true)))
-                        ),
-                        input(input -> input
-                                .blockId("headers-block")
-                                .optional(true)
-                                .element(plainTextInput(pti -> pti.actionId("del-mock").multiline(true)))
-                                .label(plainText(pt -> pt.text("Enter headers as: key1:val1, key2:val2 (without quotes)").emoji(true)))
-                        )
-                ))
+                        )))
         );
     }
 
     // input validation--->
     public static final ViewSubmissionHandler submissionHandler = (req, ctx) -> {
-        logger.info("Verifier running on add schema");
+        logger.info("Verifier running on del mock");
         Map <String, String> errors = new HashMap <>();
         Map<String, Map <String, ViewState.Value>> stateValues = req.getPayload().getView().getState().getValues();
 
         String teamKey = stateValues.get("teamKey-block").get("del-mock").getValue();
         String method = stateValues.get("method-block").get("del-mock").getValue() ;
-        String request = stateValues.get("request-block").get("del-mock").getValue();
+        String path = stateValues.get("path-block").get("del-mock").getValue();
         String query = stateValues.get("query-block").get("del-mock").getValue();
         String queryRegex = stateValues.get("queryRegex-block").get("del-mock").getValue();
-        String path = stateValues.get("path-block").get("del-mock").getValue();
-        String checkMode = stateValues.get("check-block").get("del-mock").getValue();
-        String status = stateValues.get("status-block").get("del-mock").getValue();
-        String response = stateValues.get("response-block").get("del-mock").getValue();
-
-        String temp = stateValues.get("headers-block").get("add-mock").getValue();
-        String[] res= temp.split(",");
-        Map<String,String> mp = new HashMap <>();
-        for(String pair:res){
-            int i=0;
-            for(;i<pair.length();i++){
-                if(pair.charAt(i)==':') break;
-            }
-            if(i==pair.length()) {
-                errors.put("headers-block","Invalid header format!");
-                break;
-            }
-            mp.put(pair.substring(0,i),pair.substring(i+1));
-        }
 
         method=method.toUpperCase();
         if (!method.equals("POST") && !method.equals("PUT") && !method.equals("DEL") && !method.equals("GET") && !method.equals("TRACE") && !method.equals("HEAD") && !method.equals("OPTIONS")) {
             errors.put("method-block", "This method type is invalid");
         }else if(query!=null && queryRegex!=null) {
             errors.put("queryRegex-block","You cant have both type of query at same time!");
-        }else if(!checkMode.equals("false") && !checkMode.equals("true")){
-            errors.put("check-block","Check mode must be boolean!");
         }
 
         if (!errors.isEmpty()) {
             return ctx.ack(r -> r.responseAction("errors").errors(errors));
         } else {
             try {
-
-                MockQuery mockQuery = new MockQuery().inCase(
-                        new MockRequest()
-                        .fromTeam(teamKey)
-                        .hasBody(request)
-                        .hasMethod(method)
-                        .hasPath(path)
-                        .hasQueryParameters(query)
-                        .hasQueryParameters(queryRegex)
-                        .inCheckMode(checkMode.equals("true")))
-                        .respondWith(
-                                new MockResponse()
-                                .withBody(response)
-                                .withHeader(mp)
-                                .withStatus(Integer.parseInt(status)));
-
+                DeleteMockRequest deleteMockRequest = new DeleteMockRequest();
+                deleteMockRequest.setMethod(method);
+                deleteMockRequest.setPath(path);
+                deleteMockRequest.setTeamKey(teamKey);
+                deleteMockRequest.setQueryParameters(query);
+                deleteMockRequest.setQueryParameters(queryRegex);
                 HttpRequest httpRequest = HttpRequest.newBuilder()
                         .uri(new URI("http://localhost:8080/_admin/_del/_mock"))
-                        .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(mockQuery)))
+                        .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(deleteMockRequest)))
                         .build();
 
                 HttpResponse <String> resp = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
@@ -181,10 +119,6 @@ public class DeleteMock {
         }
     };
 
-    public static final BlockActionHandler blockActionHandler = ((req, ctx) -> {
-        logger.info("Action handler");
-        return ctx.ack();
-    });
-
+    public static final BlockActionHandler blockActionHandler = ((req, ctx) -> ctx.ack());
 
 }
