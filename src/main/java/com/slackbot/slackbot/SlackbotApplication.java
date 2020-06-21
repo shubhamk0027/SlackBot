@@ -136,6 +136,21 @@ public class SlackbotApplication {
 
 
 
+            // delete a Payload
+            app.command("/delpayload", (req, ctx) -> {
+                ViewsOpenResponse viewsOpenRes = ctx.client().viewsOpen(r -> r
+                        .triggerId(ctx.getTriggerId())
+                        .view(DeletePayload.buildView()));
+                if (viewsOpenRes.isOk()) return ctx.ack();
+                else return Response.builder().statusCode(500).body(viewsOpenRes.getError()).build();
+            });
+
+            app.blockAction("del-payload", DeletePayload.blockActionHandler);
+            app.viewSubmission("del-payload", DeletePayload.submissionHandler);
+            app.viewClosed("del-payload", (req, ctx) -> ctx.ack());
+
+
+
             // Get a lost Key
             app.command("/getkey", (req, ctx) -> {
                 ViewsOpenResponse viewsOpenRes = ctx.client().viewsOpen(r -> r

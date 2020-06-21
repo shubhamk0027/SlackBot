@@ -139,15 +139,15 @@ public class AddSchema {
             try {
                 MockSchemaQuery mockSchemaQuery = new MockSchemaQuery().inCase( new MockSchema()
                         .fromTeam(teamKey)
-                        .hasSchema(schema)
+                        .hasJsonSchema(schema)
                         .hasMethod(method)
                         .hasPath(path)
                         .hasQueryParameters(query)
                         .hasQueryParametersRegex(queryRegex))
                         .respondWith( new MockResponse()
-                                .withBody(response)
+                                .withResponseBody(response)
                                 .withHeaders(mp)
-                                .withStatus(Integer.parseInt(status)));
+                                .withStatusCode(Integer.parseInt(status)));
                 HttpRequest httpRequest =  HttpRequest.newBuilder()
                         .uri(new URI("http://localhost:8080/_admin/_add/_schema"))
                         .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(mockSchemaQuery)))

@@ -153,16 +153,16 @@ public class AddMockQuery {
             try {
                 MockQuery mockQuery = new MockQuery().inCase( new MockRequest()
                                 .fromTeam(teamKey)
-                                .hasBody(request)
+                                .hasRequestBody(request)
                                 .hasMethod(method)
                                 .hasPath(path)
                                 .hasQueryParameters(query)
                                 .hasQueryParametersRegex(queryRegex)
                                 .inCheckMode(checkMode.equals("true")))
                         .respondWith( new MockResponse()
-                                .withBody(response)
+                                .withResponseBody(response)
                                 .withHeaders(mp)
-                                .withStatus(Integer.parseInt(status)));
+                                .withStatusCode(Integer.parseInt(status)));
                     HttpRequest httpRequest =  HttpRequest.newBuilder()
                             .uri(new URI("http://localhost:8080/_admin/_add/_mock"))
                             .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(mockQuery)))
@@ -182,5 +182,5 @@ public class AddMockQuery {
 
     public static final BlockActionHandler blockActionHandler = ((req, ctx) -> ctx.ack());
 
-
 }
+
