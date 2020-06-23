@@ -5,6 +5,7 @@ import com.slack.api.bolt.handler.builtin.BlockActionHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
+import com.slackbot.slackbot.Config;
 import com.slackbot.slackbot.MessagePoster;
 import com.slackbot.slackbot.Query.DeleteMockRequest;
 import org.slf4j.Logger;
@@ -91,7 +92,7 @@ public class DeletePayload {
         String request = stateValues.get("request-block").get("del-payload").getValue();
 
         method=method.toUpperCase();
-        if (!method.equals("POST") && !method.equals("PUT") && !method.equals("DEL") && !method.equals("GET") && !method.equals("TRACE") && !method.equals("HEAD") && !method.equals("OPTIONS")) {
+        if (!method.equals("POST") && !method.equals("PUT") && !method.equals("DEL")) {
             errors.put("method-block", "This method type is invalid");
         }else if(query!=null && queryRegex!=null) {
             errors.put("queryRegex-block","You cant have both type of query at same time!");
@@ -109,7 +110,7 @@ public class DeletePayload {
                 deleteMockRequest.setQueryParameters(queryRegex);
                 deleteMockRequest.setRequestBody(request);
                 HttpRequest httpRequest = HttpRequest.newBuilder()
-                        .uri(new URI("http://localhost:8080/_admin/_del/_payload"))
+                        .uri(new URI("http://"+ Config.getBaseConfig()+"/_admin/_del/_payload"))
                         .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(deleteMockRequest)))
                         .build();
 

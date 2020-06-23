@@ -5,6 +5,7 @@ import com.slack.api.bolt.handler.builtin.BlockActionHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
+import com.slackbot.slackbot.Config;
 import com.slackbot.slackbot.MessagePoster;
 import com.slackbot.slackbot.Query.MockQuery.MockQuery;
 import com.slackbot.slackbot.Query.MockQuery.MockRequest;
@@ -164,7 +165,7 @@ public class AddMockQuery {
                                 .withHeaders(mp)
                                 .withStatusCode(Integer.parseInt(status)));
                     HttpRequest httpRequest =  HttpRequest.newBuilder()
-                            .uri(new URI("http://localhost:8080/_admin/_add/_mock"))
+                            .uri(new URI("http://"+ Config.getBaseConfig()+"/_admin/_add/_mock"))
                             .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(mockQuery)))
                             .build();
                     HttpResponse <String> resp= httpClient.send(httpRequest,HttpResponse.BodyHandlers.ofString());

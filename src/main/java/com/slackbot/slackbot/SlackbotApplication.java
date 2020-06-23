@@ -26,10 +26,12 @@ import org.springframework.context.annotation.Bean;
 public class SlackbotApplication {
 
     private static final Logger logger = LoggerFactory.getLogger(SlackbotApplication.class);
-    private final String bearerToken;
 
-    SlackbotApplication(@Value("${SLACK_BOT_TOKEN}") String bearerToken){
-        this.bearerToken=bearerToken;
+    SlackbotApplication(
+            @Value("${SLACK_BOT_TOKEN}") String bearerToken,
+            @Value("${MOCK_SERVER_ADDRESS}") String baseAddress){
+        MessagePoster.setBearerToken(bearerToken);
+        Config.setBaseConfig(baseAddress);
     }
 
     public static void main(String[] args)  {
@@ -40,7 +42,6 @@ public class SlackbotApplication {
     @Bean
     public CommandLineRunner commandLineRunner(){
         return args -> {
-            MessagePoster.setBearerToken(bearerToken);
             App app = new App();
 
             // Add a team

@@ -5,8 +5,9 @@ import com.slack.api.bolt.handler.builtin.BlockActionHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
+import com.slackbot.slackbot.Config;
 import com.slackbot.slackbot.MessagePoster;
-import com.slackbot.slackbot.Query.CreateTeamQuery;
+import com.slackbot.slackbot.Query.TeamQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,11 @@ public class AddTeam {
                                 .blockId("name-block")
                                 .element(plainTextInput(pti -> pti.actionId("add-team")))
                                 .label(plainText(pt -> pt.text("Enter New Team Name").emoji(true)))
+                        ),
+                        input(input -> input
+                                .blockId("password-block")
+                                .element(plainTextInput(pti -> pti.actionId("add-team")))
+                                .label(plainText(pt -> pt.text("Enter Password").emoji(true)))
                         )
                 ))
         );
@@ -52,9 +58,11 @@ public class AddTeam {
 
     // input validation--->
     public static final ViewSubmissionHandler submissionHandler = (req, ctx) -> {
-        logger.info("Verifying team name");
+        logger.info("Verifying Create Team");
         Map<String, Map <String, ViewState.Value>> stateValues = req.getPayload().getView().getState().getValues();
         String name = stateValues.get("name-block").get("add-team").getValue();
+        String password = stateValues.get("password-block").get("add-team").getValue();
+
         Map<String, String> errors = new HashMap <>();
         for(int i=0;i<name.length();i++) {
             if(i==0 && !Character.isAlphabetic(name.charAt(i))){
@@ -66,6 +74,8 @@ public class AddTeam {
             }
         }
 
+        // no restriction on password
+
         if (!errors.isEmpty()) {
             return ctx.ack(r -> r.responseAction("errors").errors(errors));
         } else {
@@ -73,14 +83,14 @@ public class AddTeam {
             logger.info("Finally submitted!");
             logger.info(req.getHeaders().toString());
 
-            CreateTeamQuery createTeamQuery = new CreateTeamQuery();
-            createTeamQuery.setTeamName(name);
-            createTeamQuery.setAdminId(req.getPayload().getUser().getId());
+            TeamQuery teamQuery = new TeamQuery();
+            teamQuery.setTeamName(name);
+            teamQuery.setPassword(password);
 
             try {
                 HttpRequest httpRequest =  HttpRequest.newBuilder()
-                        .uri(new URI("http://localhost:8080/_admin/_add/_team"))
-                        .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(createTeamQuery)))
+                        .uri(new URI("http://"+ Config.getBaseConfig()+"/_admin/_add/_team"))
+                        .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(teamQuery)))
                         .build();
                 HttpResponse<String> response = httpClient.send(httpRequest,HttpResponse.BodyHandlers.ofString());
                 logger.info(response.toString());

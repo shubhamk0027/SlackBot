@@ -5,6 +5,7 @@ import com.slack.api.bolt.handler.builtin.BlockActionHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
+import com.slackbot.slackbot.Config;
 import com.slackbot.slackbot.MessagePoster;
 import com.slackbot.slackbot.Query.MockResponse;
 import com.slackbot.slackbot.Query.MockSchema.MockSchema;
@@ -149,7 +150,7 @@ public class AddSchema {
                                 .withHeaders(mp)
                                 .withStatusCode(Integer.parseInt(status)));
                 HttpRequest httpRequest =  HttpRequest.newBuilder()
-                        .uri(new URI("http://localhost:8080/_admin/_add/_schema"))
+                        .uri(new URI("http://"+ Config.getBaseConfig()+"/_admin/_add/_schema"))
                         .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(mockSchemaQuery)))
                         .build();
                 HttpResponse <String> resp= httpClient.send(httpRequest,HttpResponse.BodyHandlers.ofString());

@@ -5,6 +5,7 @@ import com.slack.api.bolt.handler.builtin.BlockActionHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
+import com.slackbot.slackbot.Config;
 import com.slackbot.slackbot.MessagePoster;
 import com.slackbot.slackbot.Query.DeleteMockRequest;
 import org.slf4j.Logger;
@@ -102,7 +103,7 @@ public class DeleteMock {
                 deleteMockRequest.setQueryParameters(query);
                 deleteMockRequest.setQueryParameters(queryRegex);
                 HttpRequest httpRequest = HttpRequest.newBuilder()
-                        .uri(new URI("http://localhost:8080/_admin/_del/_mock"))
+                        .uri(new URI("http://"+ Config.getBaseConfig()+"/_admin/_del/_mock"))
                         .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(deleteMockRequest)))
                         .build();
 

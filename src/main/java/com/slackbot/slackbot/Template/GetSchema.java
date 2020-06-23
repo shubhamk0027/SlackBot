@@ -5,6 +5,7 @@ import com.slack.api.bolt.handler.builtin.BlockActionHandler;
 import com.slack.api.bolt.handler.builtin.ViewSubmissionHandler;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
+import com.slackbot.slackbot.Config;
 import com.slackbot.slackbot.MessagePoster;
 import com.slackbot.slackbot.Query.GetSchemaQuery;
 import org.slf4j.Logger;
@@ -80,7 +81,7 @@ public class GetSchema {
             getSchemaQuery.setTeamKey(teamKey);
             getSchemaQuery.setPath(path);
             HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8080/_admin/_get/_schema"))
+                    .uri(new URI("http://"+ Config.getBaseConfig()+"/_admin/_get/_schema"))
                     .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(getSchemaQuery)))
                     .build();
             HttpResponse <String> resp = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
